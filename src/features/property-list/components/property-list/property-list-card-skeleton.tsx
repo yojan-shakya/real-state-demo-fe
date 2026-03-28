@@ -24,9 +24,9 @@ export const PropertyListCardSkeleton = () => {
           <Skeleton className="h-5 w-5" />
           <Skeleton className="h-5 w-36" />
         </div>
-        <p className="mt-auto flex flex-row gap-2 font-heading text-base font-medium">
+        <div className="mt-auto flex flex-row gap-2 font-heading text-base font-medium">
           <Skeleton className="h-5 w-28" />
-        </p>
+        </div>
       </CardContent>
       <CardFooter className="mt-auto">
         <Skeleton className="h-7 w-28" />

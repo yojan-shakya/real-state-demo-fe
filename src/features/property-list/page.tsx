@@ -121,8 +121,8 @@ function PropertyList() {
 
         {isPropertyListLoading ? (
           <div className="grid grid-cols-4 gap-x-4 gap-y-6">
-            {Array.from({ length: 6 }).map(() => (
-              <PropertyListCardSkeleton />
+            {Array.from({ length: 6 }).map((_, idx) => (
+              <PropertyListCardSkeleton key={idx} />
             ))}
           </div>
         ) : null}
@@ -134,6 +134,7 @@ function PropertyList() {
               {propertyListData?.data.map((item) => (
                 <PropertyListCard
                   // todo
+                  key={item.id}
                   landSize={30000}
                   price={item.price}
                   suburb={item.suburbs}
