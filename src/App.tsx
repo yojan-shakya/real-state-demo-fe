@@ -36,11 +36,14 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useQuery } from "@tanstack/react-query"
 import { ListingService } from "./services/listing-service"
 import { ListingCard } from "./features/listing/components/listing-card"
-import PropertyDetail from "./features/listing/components/listing-detail"
 import { parseAsInteger, parseAsString, useQueryStates } from "nuqs"
 import { ListingCardSkeleton } from "./features/listing/components/listing-card-skeleton"
 import emptyPageImageSrc from "./assets/empty-page-image.svg"
 import { getPagination } from "./lib"
+import {
+  PropertyDetail,
+  PropertyDetailSkeleton,
+} from "./features/listing/components"
 
 const filterListingSchema = z
   .object({
@@ -384,7 +387,6 @@ function App() {
 
       <Dialog
         open={!!selectedListingId}
-        // todoo make function for this
         onOpenChange={() => setSelectedListingId(null)}
       >
         <PropertyDetail id={selectedListingId} />

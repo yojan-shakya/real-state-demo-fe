@@ -3,6 +3,7 @@ import { Badge, type BadgeVariants } from "@/components/ui/badge"
 import { ListingService, type AdminMetadata } from "@/services/listing-service"
 import { useQuery } from "@tanstack/react-query"
 import type { ReactNode } from "react"
+import { PropertyDetailSkeleton } from "./listing-detail-skeleton"
 
 interface Field<D = string | number> {
   label: string
@@ -13,7 +14,7 @@ interface Props {
   id: number | null
 }
 
-const PropertyDetail = ({ id }: Props) => {
+export const PropertyDetail = ({ id }: Props) => {
   const {
     data: listingDetail,
     isLoading: isDetailLoading,
@@ -92,6 +93,10 @@ const PropertyDetail = ({ id }: Props) => {
     return "secondary"
   }
 
+  if (isDetailLoading) {
+    return <PropertyDetailSkeleton />
+  }
+
   return (
     <DialogContent className="sm:max-w-2xl">
       <div className="no-scrollbar h-[80vh] w-full overflow-y-auto p-1">
@@ -134,5 +139,3 @@ const PropertyDetail = ({ id }: Props) => {
     </DialogContent>
   )
 }
-
-export default PropertyDetail
