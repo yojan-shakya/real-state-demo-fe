@@ -39,10 +39,13 @@ export const ListingCard = ({
             {landSize} {"sq. meters"}
           </p>
         </div>
-        <div className="mt-auto flex flex-row gap-2 font-heading text-base font-medium">
-          <p>NPR</p>
-          <p>{price}</p>
-        </div>
+        <p className="mt-auto flex flex-row gap-2 font-heading text-base font-medium">
+          {Number(price).toLocaleString("en-IN", {
+            style: "currency",
+            currency: "NPR",
+            maximumFractionDigits: 0,
+          })}
+        </p>
       </CardContent>
       <CardFooter className="mt-auto">
         <Button onClick={onViewDetail}>View Details</Button>

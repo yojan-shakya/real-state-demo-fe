@@ -1,4 +1,4 @@
-import { DialogContent, DialogHeader } from "@/components"
+import { DialogContent } from "@/components"
 import { Badge, type BadgeVariants } from "@/components/ui/badge"
 import { ListingService, type AdminMetadata } from "@/services/listing-service"
 import { useQuery } from "@tanstack/react-query"
@@ -19,7 +19,7 @@ const PropertyDetail = ({ id }: Props) => {
     isLoading: isDetailLoading,
     isError: isDetailError,
   } = useQuery({
-    queryKey: ["listingDetail", id],
+    queryKey: ["listing-detail", id],
     queryFn: () => ListingService.getListingDetail(id!),
     enabled: id !== null,
     select(data) {
@@ -93,40 +93,42 @@ const PropertyDetail = ({ id }: Props) => {
   }
 
   return (
-    <DialogContent>
-      <DialogHeader></DialogHeader>
+    <DialogContent className="sm:max-w-2xl">
       <div className="no-scrollbar h-[80vh] w-full overflow-y-auto p-1">
         <h2 className="mb-2 border-b pb-1 text-lg font-semibold">
           {listingDetail?.title}
         </h2>
-        <div className="mx-auto max-w-md space-y-4 rounded bg-white">
+        <div className="space-y-4">
           <p>{listingDetail?.description}</p>
-          <p className="mt-auto flex flex-row gap-2 font-heading text-base font-medium">
-            {Number(listingDetail?.price).toLocaleString("en-IN", {
-              style: "currency",
-              currency: "NPR",
-            })}
-          </p>
-          <div>
-            <h2 className="mb-2 border-b pb-1 text-lg font-semibold">
-              Property Info
-            </h2>
-            {renderFields(listingDetail?.propertyInfo || [])}
-          </div>
-          <div>
-            <h2 className="mb-2 border-b pb-1 text-lg font-semibold">
-              Agent Info
-            </h2>
-            {renderFields(listingDetail?.agentInfo || [])}
-          </div>
-          {listingDetail?.adminInfo ? (
+          <div className="max-w-md space-y-4">
+            <p className="mt-auto flex flex-row gap-2 font-heading text-base font-medium">
+              {Number(listingDetail?.price).toLocaleString("en-IN", {
+                style: "currency",
+                currency: "NPR",
+                maximumFractionDigits: 0,
+              })}
+            </p>
             <div>
               <h2 className="mb-2 border-b pb-1 text-lg font-semibold">
-                Admin Info
+                Property Info
               </h2>
-              {renderFields(listingDetail?.adminInfo || [])}
+              {renderFields(listingDetail?.propertyInfo || [])}
             </div>
-          ) : null}
+            <div>
+              <h2 className="mb-2 border-b pb-1 text-lg font-semibold">
+                Agent Info
+              </h2>
+              {renderFields(listingDetail?.agentInfo || [])}
+            </div>
+            {listingDetail?.adminInfo ? (
+              <div>
+                <h2 className="mb-2 border-b pb-1 text-lg font-semibold">
+                  Admin Info
+                </h2>
+                {renderFields(listingDetail?.adminInfo || [])}
+              </div>
+            ) : null}
+          </div>
         </div>
       </div>
     </DialogContent>

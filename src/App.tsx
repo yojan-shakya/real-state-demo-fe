@@ -18,6 +18,10 @@ import {
   SelectTrigger,
   SelectValue,
   ErrorMessage,
+  EmptyPage,
+  EmptyPageImage,
+  EmptyPageTitle,
+  EmptyPageDescription,
 } from "@/components"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
@@ -26,6 +30,9 @@ import { useQuery } from "@tanstack/react-query"
 import { ListingService } from "./services/listing-service"
 import { ListingCard } from "./features/listing/components/listing-card"
 import PropertyDetail from "./features/listing/components/listing-detail"
+import { parseAsInteger, parseAsString, useQueryStates } from "nuqs"
+import { ListingCardSkeleton } from "./features/listing/components/listing-card-skeleton"
+import emptyPageImageSrc from "./assets/empty-page-image.svg"
 
 const filterListingSchema = z
   .object({
@@ -72,11 +79,22 @@ function App() {
     null
   )
 
+  const [searchParams, setSearchParams] = useQueryStates({
+    baths: parseAsInteger,
+    beds: parseAsInteger,
+    priceMin: parseAsInteger,
+    priceMax: parseAsInteger,
+    propertyType: parseAsString,
+    title: parseAsString,
+    suburb: parseAsString,
+  })
+
+  const isFilterSet = Object.values(searchParams).some((val) => val !== null)
+
   const {
     handleSubmit,
     register,
     reset,
-    getValues,
     formState: { errors },
   } = useForm<FilterListingsType>({
     resolver: zodResolver(filterListingSchema),
@@ -89,16 +107,37 @@ function App() {
     isLoading: isListingLoading,
     isError: isListingError,
   } = useQuery({
-    queryKey: ["getListing"],
-    queryFn: ListingService.getListing,
+    queryKey: ["get-listing", searchParams],
+    queryFn: () =>
+      ListingService.getListing({
+        baths: searchParams.baths || undefined,
+        beds: searchParams.beds || undefined,
+        priceMax: searchParams.priceMax || undefined,
+        priceMin: searchParams.priceMin || undefined,
+        propertyType: searchParams.propertyType || undefined,
+        search: searchParams.title || undefined,
+      }),
   })
 
-  const onSubmit = () => {
-    console.log({ errors, values: getValues() })
+  const onSubmit = (values: FilterListingsType) => {
+    setSearchParams({
+      baths: values.bathRooms || null,
+      beds: values.bedRooms || null,
+      priceMax: values.maxPrice || null,
+      priceMin: values.minPrice || null,
+      suburb: values.suburb || null,
+      title: values.title || null,
+    })
+    setIsFilterDialogOpen(false)
+  }
+
+  const onResetFilters = () => {
+    reset()
+    setSearchParams(null)
+    setIsFilterDialogOpen(false)
   }
 
   const onCancel = () => {
-    reset()
     setIsFilterDialogOpen(false)
   }
 
@@ -109,28 +148,52 @@ function App() {
   return (
     <>
       <div className="container mx-auto flex flex-col gap-4 py-10">
-        <div className="flex flex-row">
-          <Button
-            className="ml-auto"
-            onClick={() => setIsFilterDialogOpen(true)}
-          >
+        <div className="flex flex-row justify-end gap-4">
+          {isFilterSet && (
+            <Button
+              variant={"secondary"}
+              type="button"
+              onClick={onResetFilters}
+            >
+              Reset Filters
+            </Button>
+          )}
+
+          <Button onClick={() => setIsFilterDialogOpen(true)}>
             Apply Filters <Funnel />
           </Button>
         </div>
 
-        <div className="grid grid-cols-4 gap-x-4 gap-y-6">
-          {getListingData?.data.map((item) => (
-            <ListingCard
-              landSize={30000}
-              price={item.price}
-              suburb={item.suburbs}
-              title={item.title}
-              onViewDetail={() => {
-                onViewDetail(item.id)
-              }}
-            />
-          ))}
-        </div>
+        {isListingLoading ? (
+          <div className="grid grid-cols-4 gap-x-4 gap-y-6">
+            {Array.from({ length: 6 }).map(() => (
+              <ListingCardSkeleton />
+            ))}
+          </div>
+        ) : null}
+        {!isListingLoading && (getListingData?.data.length || 0) > 0 ? (
+          <div className="grid grid-cols-4 gap-x-4 gap-y-6">
+            {getListingData?.data.map((item) => (
+              <ListingCard
+                // todo
+                landSize={30000}
+                price={item.price}
+                suburb={item.suburbs}
+                title={item.title}
+                onViewDetail={() => {
+                  onViewDetail(item.id)
+                }}
+              />
+            ))}
+          </div>
+        ) : null}
+        {!isListingLoading && getListingData?.data.length === 0 ? (
+          <EmptyPage className="mt-10">
+            <EmptyPageImage className="w-40 md:w-60" src={emptyPageImageSrc} />
+            <EmptyPageTitle>{"No data found"}</EmptyPageTitle>
+            <EmptyPageDescription>Try a different filter</EmptyPageDescription>
+          </EmptyPage>
+        ) : null}
       </div>
 
       <Dialog open={isFilterDialogOpen} onOpenChange={onCancel}>
@@ -252,6 +315,7 @@ function App() {
                   <ErrorMessage error={errors.form?.message} />
                   <Field orientation="horizontal" className="mt-2">
                     <Button type="submit">Submit</Button>
+
                     <Button variant="outline" type="button" onClick={onCancel}>
                       Cancel
                     </Button>
@@ -268,14 +332,7 @@ function App() {
         // todoo make function for this
         onOpenChange={() => setSelectedListingId(null)}
       >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle> Property Details</DialogTitle>
-          </DialogHeader>
-          <div className="no-scrollbar max-h-[70vh] w-full overflow-y-auto p-1">
-            <PropertyDetail id={selectedListingId} />
-          </div>
-        </DialogContent>
+        <PropertyDetail id={selectedListingId} />
       </Dialog>
     </>
   )

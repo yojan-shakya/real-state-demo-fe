@@ -45,8 +45,20 @@ export interface ListingDetail {
   adminMetadata?: AdminMetadata
 }
 
-async function getListing() {
-  const { data } = await API.get<PaginatedResponse<ListingItem>>("/listings")
+interface GetListingQueryParams {
+  search?: string
+  priceMin?: number
+  priceMax?: number
+  beds?: number
+  baths?: number
+  propertyType?: string // todo
+  suburb?: string
+}
+
+async function getListing(params: GetListingQueryParams) {
+  const { data } = await API.get<PaginatedResponse<ListingItem>>("/listings", {
+    params,
+  })
   return data
 }
 
