@@ -53,6 +53,7 @@ interface GetListingQueryParams {
   baths?: number
   propertyType?: string // todo
   suburb?: string
+  page?: number
 }
 
 async function getListing(params: GetListingQueryParams) {

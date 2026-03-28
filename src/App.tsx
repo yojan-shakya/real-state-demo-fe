@@ -22,6 +22,13 @@ import {
   EmptyPageImage,
   EmptyPageTitle,
   EmptyPageDescription,
+  Pagination,
+  PaginationItem,
+  PaginationEllipsis,
+  PaginationContent,
+  PaginationPrevious,
+  PaginationNext,
+  PaginationLink,
 } from "@/components"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
@@ -33,6 +40,7 @@ import PropertyDetail from "./features/listing/components/listing-detail"
 import { parseAsInteger, parseAsString, useQueryStates } from "nuqs"
 import { ListingCardSkeleton } from "./features/listing/components/listing-card-skeleton"
 import emptyPageImageSrc from "./assets/empty-page-image.svg"
+import { getPagination } from "./lib"
 
 const filterListingSchema = z
   .object({
@@ -87,6 +95,7 @@ function App() {
     propertyType: parseAsString,
     title: parseAsString,
     suburb: parseAsString,
+    page: parseAsInteger,
   })
 
   const isFilterSet = Object.values(searchParams).some((val) => val !== null)
@@ -102,11 +111,7 @@ function App() {
     reValidateMode: "onBlur",
   })
 
-  const {
-    data: getListingData,
-    isLoading: isListingLoading,
-    isError: isListingError,
-  } = useQuery({
+  const { data: getListingData, isLoading: isListingLoading } = useQuery({
     queryKey: ["get-listing", searchParams],
     queryFn: () =>
       ListingService.getListing({
@@ -116,6 +121,7 @@ function App() {
         priceMin: searchParams.priceMin || undefined,
         propertyType: searchParams.propertyType || undefined,
         search: searchParams.title || undefined,
+        page: searchParams.page || undefined,
       }),
   })
 
@@ -145,6 +151,12 @@ function App() {
     setSelectedListingId(id)
   }
 
+  const onPaginate = (page: number) => {
+    setSearchParams({
+      page,
+    })
+  }
+
   return (
     <>
       <div className="container mx-auto flex flex-col gap-4 py-10">
@@ -171,20 +183,60 @@ function App() {
             ))}
           </div>
         ) : null}
-        {!isListingLoading && (getListingData?.data.length || 0) > 0 ? (
-          <div className="grid grid-cols-4 gap-x-4 gap-y-6">
-            {getListingData?.data.map((item) => (
-              <ListingCard
-                // todo
-                landSize={30000}
-                price={item.price}
-                suburb={item.suburbs}
-                title={item.title}
-                onViewDetail={() => {
-                  onViewDetail(item.id)
-                }}
-              />
-            ))}
+        {!isListingLoading &&
+        getListingData &&
+        getListingData?.data.length > 0 ? (
+          <div>
+            <div className="grid grid-cols-4 gap-x-4 gap-y-6">
+              {getListingData?.data.map((item) => (
+                <ListingCard
+                  // todo
+                  landSize={30000}
+                  price={item.price}
+                  suburb={item.suburbs}
+                  title={item.title}
+                  onViewDetail={() => {
+                    onViewDetail(item.id)
+                  }}
+                />
+              ))}
+            </div>
+            <Pagination className="mt-6 w-full">
+              <PaginationContent>
+                <PaginationPrevious
+                  aria-disabled={!getListingData.paginationMeta.hasPrev}
+                  onClick={() => {
+                    onPaginate(getListingData.paginationMeta.page - 1)
+                  }}
+                />
+                {getPagination(
+                  getListingData.paginationMeta.page,
+                  getListingData.paginationMeta.totalPages
+                ).map((item, idx) =>
+                  item === "..." ? (
+                    <PaginationItem key={idx}>
+                      <PaginationEllipsis />
+                    </PaginationItem>
+                  ) : (
+                    <PaginationItem key={idx}>
+                      <PaginationLink
+                        onClick={() => {
+                          onPaginate(item)
+                        }}
+                      >
+                        {item}
+                      </PaginationLink>
+                    </PaginationItem>
+                  )
+                )}
+                <PaginationNext
+                  aria-disabled={!getListingData.paginationMeta.hasNext}
+                  onClick={() => {
+                    onPaginate(getListingData.paginationMeta.page + 1)
+                  }}
+                />
+              </PaginationContent>
+            </Pagination>
           </div>
         ) : null}
         {!isListingLoading && getListingData?.data.length === 0 ? (
