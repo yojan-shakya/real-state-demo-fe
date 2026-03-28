@@ -1,13 +1,6 @@
 import { Funnel } from "lucide-react"
 import { useState } from "react"
 import {
-  Card,
-  CardAction,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
   Dialog,
   DialogContent,
   DialogHeader,
@@ -29,6 +22,10 @@ import {
 import { useForm } from "react-hook-form"
 import * as z from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { useQuery } from "@tanstack/react-query"
+import { ListingService } from "./services/listing-service"
+import { ListingCard } from "./features/listing/components/listing-card"
+import PropertyDetail from "./features/listing/components/listing-detail"
 
 const filterListingSchema = z
   .object({
@@ -70,7 +67,10 @@ const filterListingSchema = z
 type FilterListingsType = z.infer<typeof filterListingSchema>
 
 function App() {
-  const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false)
+  const [isFilterDialogOpen, setIsFilterDialogOpen] = useState<boolean>(false)
+  const [selectedListingId, setSelectedListingId] = useState<number | null>(
+    null
+  )
 
   const {
     handleSubmit,
@@ -84,185 +84,56 @@ function App() {
     reValidateMode: "onBlur",
   })
 
+  const {
+    data: getListingData,
+    isLoading: isListingLoading,
+    isError: isListingError,
+  } = useQuery({
+    queryKey: ["getListing"],
+    queryFn: ListingService.getListing,
+  })
+
   const onSubmit = () => {
     console.log({ errors, values: getValues() })
   }
 
   const onCancel = () => {
     reset()
-    setIsDialogOpen(false)
+    setIsFilterDialogOpen(false)
+  }
+
+  const onViewDetail = (id: number) => {
+    setSelectedListingId(id)
   }
 
   return (
     <>
       <div className="container mx-auto flex flex-col gap-4 py-10">
         <div className="flex flex-row">
-          <Button className="ml-auto" onClick={() => setIsDialogOpen(true)}>
+          <Button
+            className="ml-auto"
+            onClick={() => setIsFilterDialogOpen(true)}
+          >
             Apply Filters <Funnel />
           </Button>
         </div>
 
         <div className="grid grid-cols-4 gap-x-4 gap-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Card Title</CardTitle>
-              <CardDescription>Card Description</CardDescription>
-              <CardAction>Card Action</CardAction>
-            </CardHeader>
-            <CardContent>
-              <p>Card Content</p>
-            </CardContent>
-            <CardFooter>
-              <p>Card Footer</p>
-            </CardFooter>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle>Card Title</CardTitle>
-              <CardDescription>Card Description</CardDescription>
-              <CardAction>Card Action</CardAction>
-            </CardHeader>
-            <CardContent>
-              <p>Card Content</p>
-            </CardContent>
-            <CardFooter>
-              <p>Card Footer</p>
-            </CardFooter>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle>Card Title</CardTitle>
-              <CardDescription>Card Description</CardDescription>
-              <CardAction>Card Action</CardAction>
-            </CardHeader>
-            <CardContent>
-              <p>Card Content</p>
-            </CardContent>
-            <CardFooter>
-              <p>Card Footer</p>
-            </CardFooter>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle>Card Title</CardTitle>
-              <CardDescription>Card Description</CardDescription>
-              <CardAction>Card Action</CardAction>
-            </CardHeader>
-            <CardContent>
-              <p>Card Content</p>
-            </CardContent>
-            <CardFooter>
-              <p>Card Footer</p>
-            </CardFooter>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle>Card Title</CardTitle>
-              <CardDescription>Card Description</CardDescription>
-              <CardAction>Card Action</CardAction>
-            </CardHeader>
-            <CardContent>
-              <p>Card Content</p>
-            </CardContent>
-            <CardFooter>
-              <p>Card Footer</p>
-            </CardFooter>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle>Card Title</CardTitle>
-              <CardDescription>Card Description</CardDescription>
-              <CardAction>Card Action</CardAction>
-            </CardHeader>
-            <CardContent>
-              <p>Card Content</p>
-            </CardContent>
-            <CardFooter>
-              <p>Card Footer</p>
-            </CardFooter>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle>Card Title</CardTitle>
-              <CardDescription>Card Description</CardDescription>
-              <CardAction>Card Action</CardAction>
-            </CardHeader>
-            <CardContent>
-              <p>Card Content</p>
-            </CardContent>
-            <CardFooter>
-              <p>Card Footer</p>
-            </CardFooter>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle>Card Title</CardTitle>
-              <CardDescription>Card Description</CardDescription>
-              <CardAction>Card Action</CardAction>
-            </CardHeader>
-            <CardContent>
-              <p>Card Content</p>
-            </CardContent>
-            <CardFooter>
-              <p>Card Footer</p>
-            </CardFooter>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle>Card Title</CardTitle>
-              <CardDescription>Card Description</CardDescription>
-              <CardAction>Card Action</CardAction>
-            </CardHeader>
-            <CardContent>
-              <p>Card Content</p>
-            </CardContent>
-            <CardFooter>
-              <p>Card Footer</p>
-            </CardFooter>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle>Card Title</CardTitle>
-              <CardDescription>Card Description</CardDescription>
-              <CardAction>Card Action</CardAction>
-            </CardHeader>
-            <CardContent>
-              <p>Card Content</p>
-            </CardContent>
-            <CardFooter>
-              <p>Card Footer</p>
-            </CardFooter>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle>Card Title</CardTitle>
-              <CardDescription>Card Description</CardDescription>
-              <CardAction>Card Action</CardAction>
-            </CardHeader>
-            <CardContent>
-              <p>Card Content</p>
-            </CardContent>
-            <CardFooter>
-              <p>Card Footer</p>
-            </CardFooter>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle>Card Title</CardTitle>
-              <CardDescription>Card Description</CardDescription>
-              <CardAction>Card Action</CardAction>
-            </CardHeader>
-            <CardContent>
-              <p>Card Content</p>
-            </CardContent>
-            <CardFooter>
-              <p>Card Footer</p>
-            </CardFooter>
-          </Card>
+          {getListingData?.data.map((item) => (
+            <ListingCard
+              landSize={30000}
+              price={item.price}
+              suburb={item.suburbs}
+              title={item.title}
+              onViewDetail={() => {
+                onViewDetail(item.id)
+              }}
+            />
+          ))}
         </div>
       </div>
 
-      <Dialog open={isDialogOpen} onOpenChange={onCancel}>
+      <Dialog open={isFilterDialogOpen} onOpenChange={onCancel}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Filter</DialogTitle>
@@ -388,6 +259,21 @@ function App() {
                 </div>
               </FieldGroup>
             </form>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={!!selectedListingId}
+        // todoo make function for this
+        onOpenChange={() => setSelectedListingId(null)}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle> Property Details</DialogTitle>
+          </DialogHeader>
+          <div className="no-scrollbar max-h-[70vh] w-full overflow-y-auto p-1">
+            <PropertyDetail id={selectedListingId} />
           </div>
         </DialogContent>
       </Dialog>

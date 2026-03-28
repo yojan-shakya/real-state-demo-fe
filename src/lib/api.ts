@@ -1,4 +1,4 @@
-import { AuthService } from "@/services/auth.service"
+import { AuthService } from "@/services/auth-service"
 import Axios, { type InternalAxiosRequestConfig } from "axios"
 
 export const API = Axios.create({
