@@ -5,7 +5,7 @@ import "./index.css"
 import App from "./App.tsx"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { NuqsAdapter } from "nuqs/adapters/react"
-import { ThemeProvider } from "@/features/core/components/theme-provider.tsx"
+import { ThemeProvider } from "@/features/core/providers/theme-provider.tsx"
 
 const queryClient = new QueryClient()
 

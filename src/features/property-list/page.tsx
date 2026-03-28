@@ -3,11 +3,8 @@ import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { parseAsInteger, parseAsString, useQueryStates } from "nuqs"
 import emptyPageImageSrc from "@/assets/empty-page-image.svg"
-import { ListingService } from "@/services"
-import type { FilterListingsType } from "./components/filter/schema"
-import { ListingCard, ListingCardSkeleton, PropertyDetail } from "./components"
-import { getPagination } from "@/lib"
-import { ListingFilter } from "./components/filter/filter"
+import type { PropertyListFilterType } from "./components/property-list-filter/schema"
+import { PropertyListFilter } from "./components/property-list-filter/property-list-filter"
 import {
   Button,
   Dialog,
@@ -26,10 +23,17 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/features/core/components"
+import { getPageNumbers } from "../core"
+import { PropertyApi } from "./api"
+import {
+  PropertyDetail,
+  PropertyListCard,
+  PropertyListCardSkeleton,
+} from "./components"
 
 function PropertyList() {
   const [isFilterDialogOpen, setIsFilterDialogOpen] = useState<boolean>(false)
-  const [selectedListingId, setSelectedListingId] = useState<number | null>(
+  const [selectedPropertyId, setSelectedPropertyId] = useState<number | null>(
     null
   )
 
@@ -48,21 +52,23 @@ function PropertyList() {
     .filter(([key, _]) => key !== "page")
     .some(([_, val]) => val !== null)
 
-  const { data: getListingData, isLoading: isListingLoading } = useQuery({
-    queryKey: ["get-listing", searchParams],
-    queryFn: () =>
-      ListingService.getListing({
-        baths: searchParams.baths || undefined,
-        beds: searchParams.beds || undefined,
-        priceMax: searchParams.priceMax || undefined,
-        priceMin: searchParams.priceMin || undefined,
-        propertyType: searchParams.propertyType || undefined,
-        search: searchParams.title || undefined,
-        page: searchParams.page || undefined,
-      }),
-  })
+  const { data: propertyListData, isLoading: isPropertyListLoading } = useQuery(
+    {
+      queryKey: ["get-property-list", searchParams],
+      queryFn: () =>
+        PropertyApi.getPropertyList({
+          baths: searchParams.baths || undefined,
+          beds: searchParams.beds || undefined,
+          priceMax: searchParams.priceMax || undefined,
+          priceMin: searchParams.priceMin || undefined,
+          propertyType: searchParams.propertyType || undefined,
+          search: searchParams.title || undefined,
+          page: searchParams.page || undefined,
+        }),
+    }
+  )
 
-  const onSubmit = (values: FilterListingsType) => {
+  const onSubmit = (values: PropertyListFilterType) => {
     setSearchParams({
       baths: values.bathRooms || null,
       beds: values.bedRooms || null,
@@ -80,7 +86,7 @@ function PropertyList() {
   }
 
   const onViewDetail = (id: number) => {
-    setSelectedListingId(id)
+    setSelectedPropertyId(id)
   }
 
   const onPaginate = (page: number) => {
@@ -113,20 +119,20 @@ function PropertyList() {
           </Button>
         </div>
 
-        {isListingLoading ? (
+        {isPropertyListLoading ? (
           <div className="grid grid-cols-4 gap-x-4 gap-y-6">
             {Array.from({ length: 6 }).map(() => (
-              <ListingCardSkeleton />
+              <PropertyListCardSkeleton />
             ))}
           </div>
         ) : null}
-        {!isListingLoading &&
-        getListingData &&
-        getListingData?.data.length > 0 ? (
+        {!isPropertyListLoading &&
+        propertyListData &&
+        propertyListData?.data.length > 0 ? (
           <div>
             <div className="grid grid-cols-4 gap-x-4 gap-y-6">
-              {getListingData?.data.map((item) => (
-                <ListingCard
+              {propertyListData?.data.map((item) => (
+                <PropertyListCard
                   // todo
                   landSize={30000}
                   price={item.price}
@@ -141,14 +147,14 @@ function PropertyList() {
             <Pagination className="mt-6 w-full">
               <PaginationContent>
                 <PaginationPrevious
-                  aria-disabled={!getListingData.paginationMeta.hasPrev}
+                  aria-disabled={!propertyListData.paginationMeta.hasPrev}
                   onClick={() => {
-                    onPaginate(getListingData.paginationMeta.page - 1)
+                    onPaginate(propertyListData.paginationMeta.page - 1)
                   }}
                 />
-                {getPagination(
-                  getListingData.paginationMeta.page,
-                  getListingData.paginationMeta.totalPages
+                {getPageNumbers(
+                  propertyListData.paginationMeta.page,
+                  propertyListData.paginationMeta.totalPages
                 ).map((item, idx) =>
                   item === "..." ? (
                     <PaginationItem key={idx}>
@@ -160,6 +166,7 @@ function PropertyList() {
                         onClick={() => {
                           onPaginate(item)
                         }}
+                        isActive={item === propertyListData.paginationMeta.page}
                       >
                         {item}
                       </PaginationLink>
@@ -167,16 +174,16 @@ function PropertyList() {
                   )
                 )}
                 <PaginationNext
-                  aria-disabled={!getListingData.paginationMeta.hasNext}
+                  aria-disabled={!propertyListData.paginationMeta.hasNext}
                   onClick={() => {
-                    onPaginate(getListingData.paginationMeta.page + 1)
+                    onPaginate(propertyListData.paginationMeta.page + 1)
                   }}
                 />
               </PaginationContent>
             </Pagination>
           </div>
         ) : null}
-        {!isListingLoading && getListingData?.data.length === 0 ? (
+        {!isPropertyListLoading && propertyListData?.data.length === 0 ? (
           <EmptyPage className="mt-10">
             <EmptyPageImage className="w-40 md:w-60" src={emptyPageImageSrc} />
             <EmptyPageTitle>{"No data found"}</EmptyPageTitle>
@@ -190,7 +197,7 @@ function PropertyList() {
           <DialogHeader>
             <DialogTitle>Filter</DialogTitle>
           </DialogHeader>
-          <ListingFilter
+          <PropertyListFilter
             onCancel={onFilterClose}
             onSubmit={onSubmit}
             defaultValues={{
@@ -206,11 +213,11 @@ function PropertyList() {
       </Dialog>
 
       <Dialog
-        open={!!selectedListingId}
-        onOpenChange={() => setSelectedListingId(null)}
+        open={!!selectedPropertyId}
+        onOpenChange={() => setSelectedPropertyId(null)}
       >
         <DialogContent className="sm:max-w-2xl">
-          <PropertyDetail id={selectedListingId} />
+          <PropertyDetail id={selectedPropertyId} />
         </DialogContent>
       </Dialog>
     </>

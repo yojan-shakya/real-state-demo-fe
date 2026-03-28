@@ -1,2 +1,2 @@
-export * from "./listingDetail"
-export * from "./listing"
+export * from "./property-detail"
+export * from "./property-list"

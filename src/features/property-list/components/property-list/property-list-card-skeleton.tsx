@@ -7,7 +7,7 @@ import {
   Skeleton,
 } from "@/features/core/components"
 
-export const ListingCardSkeleton = () => {
+export const PropertyListCardSkeleton = () => {
   return (
     <Card className="min-h-64">
       <CardHeader>

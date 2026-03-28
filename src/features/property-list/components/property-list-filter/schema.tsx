@@ -1,6 +1,6 @@
 import * as z from "zod"
 
-export const filterListingSchema = z
+export const propertyListFilterSchema = z
   .object({
     title: z.string("Title must be string").optional(),
     minPrice: z
@@ -37,4 +37,4 @@ export const filterListingSchema = z
     path: ["form"],
   })
 
-export type FilterListingsType = z.infer<typeof filterListingSchema>
+export type PropertyListFilterType = z.infer<typeof propertyListFilterSchema>

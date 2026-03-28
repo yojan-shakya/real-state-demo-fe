@@ -16,7 +16,7 @@ interface Props {
   onViewDetail: () => void
 }
 
-export const ListingCard = ({
+export const PropertyListCard = ({
   landSize,
   price,
   suburb,

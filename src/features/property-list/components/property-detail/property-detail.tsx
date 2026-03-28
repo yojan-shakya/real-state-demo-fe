@@ -1,8 +1,8 @@
 import { Badge, type BadgeVariants } from "@/features/core/components"
-import { ListingService, type AdminMetadata } from "@/services/listing-service"
 import { useQuery } from "@tanstack/react-query"
 import type { ReactNode } from "react"
-import { PropertyDetailSkeleton } from "./listing-detail-skeleton"
+import { PropertyDetailSkeleton } from "./property-detail-skeleton"
+import { PropertyApi, type AdminMetadata } from "../../api"
 
 interface Field<D = string | number> {
   label: string
@@ -14,13 +14,9 @@ interface Props {
 }
 
 export const PropertyDetail = ({ id }: Props) => {
-  const {
-    data: listingDetail,
-    isLoading: isDetailLoading,
-    isError: isDetailError,
-  } = useQuery({
-    queryKey: ["listing-detail", id],
-    queryFn: () => ListingService.getListingDetail(id!),
+  const { data: propertyDetail, isLoading: isDetailLoading } = useQuery({
+    queryKey: ["property-detail", id],
+    queryFn: () => PropertyApi.getPropertyDetail(id!),
     enabled: id !== null,
     select(data) {
       const propertyInfo: Field[] = [
@@ -99,13 +95,13 @@ export const PropertyDetail = ({ id }: Props) => {
   return (
     <div className="no-scrollbar h-[80vh] w-full overflow-y-auto p-1">
       <h2 className="mb-2 border-b pb-1 text-lg font-semibold">
-        {listingDetail?.title}
+        {propertyDetail?.title}
       </h2>
       <div className="space-y-4">
-        <p>{listingDetail?.description}</p>
+        <p>{propertyDetail?.description}</p>
         <div className="max-w-md space-y-4">
           <p className="mt-auto flex flex-row gap-2 font-heading text-base font-medium">
-            {Number(listingDetail?.price).toLocaleString("en-IN", {
+            {Number(propertyDetail?.price).toLocaleString("en-IN", {
               style: "currency",
               currency: "NPR",
               maximumFractionDigits: 0,
@@ -115,20 +111,20 @@ export const PropertyDetail = ({ id }: Props) => {
             <h2 className="mb-2 border-b pb-1 text-lg font-semibold">
               Property Info
             </h2>
-            {renderFields(listingDetail?.propertyInfo || [])}
+            {renderFields(propertyDetail?.propertyInfo || [])}
           </div>
           <div>
             <h2 className="mb-2 border-b pb-1 text-lg font-semibold">
               Agent Info
             </h2>
-            {renderFields(listingDetail?.agentInfo || [])}
+            {renderFields(propertyDetail?.agentInfo || [])}
           </div>
-          {listingDetail?.adminInfo ? (
+          {propertyDetail?.adminInfo ? (
             <div>
               <h2 className="mb-2 border-b pb-1 text-lg font-semibold">
                 Admin Info
               </h2>
-              {renderFields(listingDetail?.adminInfo || [])}
+              {renderFields(propertyDetail?.adminInfo || [])}
             </div>
           ) : null}
         </div>

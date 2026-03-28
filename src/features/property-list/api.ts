@@ -1,4 +1,5 @@
-import { API, type PaginatedResponse } from "@/lib"
+import type { PaginatedResponse } from "@/features/core"
+import { api } from "@/lib"
 
 interface Agent {
   id: number
@@ -14,7 +15,7 @@ export interface AdminMetadata {
   riskScore: number
 }
 // todo remove some fields in both be and fe
-export interface ListingItem {
+export interface PropertyListItem {
   id: number
   title: string
   description: string
@@ -29,7 +30,7 @@ export interface ListingItem {
   agent: Agent
 }
 
-export interface ListingDetail {
+export interface PropertyDetail {
   id: number
   title: string
   description: string
@@ -45,7 +46,7 @@ export interface ListingDetail {
   adminMetadata?: AdminMetadata
 }
 
-interface GetListingQueryParams {
+interface GetPropertyListQueryParams {
   search?: string
   priceMin?: number
   priceMax?: number
@@ -56,19 +57,22 @@ interface GetListingQueryParams {
   page?: number
 }
 
-async function getListing(params: GetListingQueryParams) {
-  const { data } = await API.get<PaginatedResponse<ListingItem>>("/listings", {
-    params,
-  })
+async function getPropertyList(params: GetPropertyListQueryParams) {
+  const { data } = await api.get<PaginatedResponse<PropertyListItem>>(
+    "/listings",
+    {
+      params,
+    }
+  )
   return data
 }
 
-async function getListingDetail(id: number) {
-  const { data } = await API.get<ListingDetail>(`/listings/${id}`)
+async function getPropertyDetail(id: number) {
+  const { data } = await api.get<PropertyDetail>(`/listings/${id}`)
   return data
 }
 
-export const ListingService = {
-  getListing,
-  getListingDetail,
+export const PropertyApi = {
+  getPropertyList,
+  getPropertyDetail,
 }

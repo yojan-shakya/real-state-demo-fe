@@ -15,24 +15,24 @@ import {
   SelectValue,
   ErrorMessage,
 } from "@/features/core/components"
-import { filterListingSchema, type FilterListingsType } from "./schema"
+import { propertyListFilterSchema, type PropertyListFilterType } from "./schema"
 
-interface ListingFilterProps {
-  onSubmit: (_: FilterListingsType) => void
+interface PropertyListFilterProps {
+  onSubmit: (_: PropertyListFilterType) => void
   onCancel: () => void
-  defaultValues: FilterListingsType
+  defaultValues: PropertyListFilterType
 }
-export const ListingFilter = ({
+export const PropertyListFilter = ({
   onSubmit,
   onCancel,
   defaultValues,
-}: ListingFilterProps) => {
+}: PropertyListFilterProps) => {
   const {
     handleSubmit,
     register,
     formState: { errors },
-  } = useForm<FilterListingsType>({
-    resolver: zodResolver(filterListingSchema),
+  } = useForm<PropertyListFilterType>({
+    resolver: zodResolver(propertyListFilterSchema),
     mode: "onBlur",
     reValidateMode: "onBlur",
     defaultValues,
