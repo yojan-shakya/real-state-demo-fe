@@ -95,10 +95,12 @@ function App() {
     propertyType: parseAsString,
     title: parseAsString,
     suburb: parseAsString,
-    page: parseAsInteger,
+    page: parseAsInteger.withDefault(1),
   })
 
-  const isFilterSet = Object.values(searchParams).some((val) => val !== null)
+  const isFilterSet = Object.entries(searchParams)
+    .filter(([key, _]) => key !== "page")
+    .some(([_, val]) => val !== null)
 
   const {
     handleSubmit,
@@ -133,6 +135,7 @@ function App() {
       priceMin: values.minPrice || null,
       suburb: values.suburb || null,
       title: values.title || null,
+      page: 1,
     })
     setIsFilterDialogOpen(false)
   }
