@@ -1,6 +1,5 @@
 import { cn } from "@/lib/utils"
 import { cva } from "class-variance-authority"
-import { CircleAlert, TriangleAlert } from "lucide-react"
 
 const errorMessage = cva("", {
   variants: {

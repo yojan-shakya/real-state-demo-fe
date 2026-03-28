@@ -4,8 +4,8 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components"
-import { Skeleton } from "@/components/ui/skeleton"
+  Skeleton,
+} from "@/features/core/components"
 
 export const ListingCardSkeleton = () => {
   return (

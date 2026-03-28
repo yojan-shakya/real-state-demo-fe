@@ -5,7 +5,7 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components"
+} from "@/features/core/components"
 import { LayoutDashboardIcon, MapPin } from "lucide-react"
 
 interface Props {

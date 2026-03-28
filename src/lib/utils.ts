@@ -5,34 +5,22 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-type Item = number | "..."
 // Note: This is copied from the internet
-export function getPagination(current: number, total: number): Item[] {
-  const delta = 1
-  const range: number[] = []
-  const result: Item[] = []
-
-  for (
-    let i = Math.max(2, current - delta);
-    i <= Math.min(total - 1, current + delta);
-    i++
-  ) {
-    range.push(i)
+export function getPagination(
+  current: number,
+  total: number
+): (number | "...")[] {
+  if (total <= 7) {
+    return Array.from({ length: total }, (_, i) => i + 1)
   }
 
-  if (current - delta > 2) {
-    result.push(1, "...")
-  } else {
-    result.push(1)
+  if (current <= 4) {
+    return [1, 2, 3, 4, 5, "...", total]
   }
 
-  result.push(...range)
-
-  if (current + delta < total - 1) {
-    result.push("...", total)
-  } else {
-    result.push(total)
+  if (current >= total - 3) {
+    return [1, "...", total - 4, total - 3, total - 2, total - 1, total]
   }
 
-  return result
+  return [1, "...", current - 1, current, current + 1, "...", total]
 }

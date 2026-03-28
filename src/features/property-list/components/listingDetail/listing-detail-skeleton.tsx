@@ -1,5 +1,5 @@
-import { DialogContent } from "@/components"
-import { Skeleton } from "@/components/ui/skeleton"
+import { DialogContent } from "@/features/core/components"
+import { Skeleton } from "@/features/core/components"
 
 export const PropertyDetailSkeleton = () => {
   return (
