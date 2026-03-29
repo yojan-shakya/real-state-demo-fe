@@ -6,13 +6,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/features/core/components"
-import { LayoutDashboardIcon, MapPin } from "lucide-react"
+import { Building2, LayoutDashboardIcon, MapPin } from "lucide-react"
 
 interface Props {
   title: string
   suburb: string
   price: string
   landSize: number
+  propertyType: string
   onViewDetail: () => void
 }
 
@@ -21,6 +22,7 @@ export const PropertyListCard = ({
   price,
   suburb,
   title,
+  propertyType,
   onViewDetail,
 }: Props) => {
   return (
@@ -38,6 +40,10 @@ export const PropertyListCard = ({
           <p>
             {landSize} {"sq. meters"}
           </p>
+        </div>
+        <div className="flex flex-row gap-2">
+          <Building2 className="h-4 w-4 self-center" />
+          <p>{propertyType}</p>
         </div>
         <p className="mt-auto flex flex-row gap-2 font-heading text-base font-medium">
           {Number(price).toLocaleString("en-IN", {

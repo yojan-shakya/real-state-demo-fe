@@ -14,20 +14,13 @@ export interface AdminMetadata {
   internalStatus: "fraud_suspected" | "approved" | "rejected" | "under_review"
   riskScore: number
 }
-// todo remove some fields in both be and fe
 export interface PropertyListItem {
   id: number
   title: string
-  description: string
   price: string
-  bedrooms: number
-  bathrooms: number
-  agentId: number
   suburbs: string
+  landSize: number
   propertyType: string
-  createdAt: string
-  updatedAt: string
-  agent: Agent
 }
 
 export interface PropertyDetail {
@@ -52,14 +45,18 @@ interface GetPropertyListQueryParams {
   priceMax?: number
   beds?: number
   baths?: number
-  propertyType?: string // todo
+  propertyType?: string
   suburb?: string
   page?: number
 }
 
+interface GetPropertyTypeResponse {
+  data: string[]
+}
+
 async function getPropertyList(params: GetPropertyListQueryParams) {
   const { data } = await api.get<PaginatedResponse<PropertyListItem>>(
-    "/listings",
+    "/property/listings",
     {
       params,
     }
@@ -68,11 +65,19 @@ async function getPropertyList(params: GetPropertyListQueryParams) {
 }
 
 async function getPropertyDetail(id: number) {
-  const { data } = await api.get<PropertyDetail>(`/listings/${id}`)
+  const { data } = await api.get<PropertyDetail>(`/property/listings/${id}`)
+  return data
+}
+
+async function getPropertyTypes() {
+  const { data } = await api.get<GetPropertyTypeResponse>(
+    `/property/property-types`
+  )
   return data
 }
 
 export const PropertyApi = {
   getPropertyList,
   getPropertyDetail,
+  getPropertyTypes,
 }

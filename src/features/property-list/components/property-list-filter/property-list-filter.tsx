@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
+import { Controller, useForm } from "react-hook-form"
 import {
   Button,
   Field,
@@ -16,6 +16,10 @@ import {
   ErrorMessage,
 } from "@/features/core/components"
 import { propertyListFilterSchema, type PropertyListFilterType } from "./schema"
+import { Loader2 } from "lucide-react"
+import { useQuery } from "@tanstack/react-query"
+import { PropertyApi } from "../../api"
+import { capitalizeFirstLetter } from "@/lib"
 
 interface PropertyListFilterProps {
   onSubmit: (_: PropertyListFilterType) => void
@@ -30,6 +34,7 @@ export const PropertyListFilter = ({
   const {
     handleSubmit,
     register,
+    control,
     formState: { errors },
   } = useForm<PropertyListFilterType>({
     resolver: zodResolver(propertyListFilterSchema),
@@ -37,6 +42,12 @@ export const PropertyListFilter = ({
     reValidateMode: "onBlur",
     defaultValues,
   })
+
+  const { data: propertyTypesList, isLoading: isPropertyTypeLoading } =
+    useQuery({
+      queryKey: ["property-type"],
+      queryFn: PropertyApi.getPropertyTypes,
+    })
 
   return (
     <div className="no-scrollbar max-h-[70vh] w-full overflow-y-auto p-1">
@@ -116,18 +127,42 @@ export const PropertyListFilter = ({
                 <FieldLabel htmlFor="checkout-7j9-optional-comments">
                   Property Type
                 </FieldLabel>
-                <Select>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Theme" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      <SelectItem value="light">Light</SelectItem>
-                      <SelectItem value="dark">Dark</SelectItem>
-                      <SelectItem value="system">System</SelectItem>
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
+                <Controller
+                  name={"propertyType"}
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      disabled={isPropertyTypeLoading}
+                      value={field.value ?? ""}
+                      onValueChange={field.onChange}
+                    >
+                      <SelectTrigger
+                        value={field.value}
+                        onCancel={() => field.onChange("")}
+                      >
+                        {isPropertyTypeLoading ? (
+                          <div className="flex items-center gap-2">
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                            <span>Loading...</span>
+                          </div>
+                        ) : (
+                          <>
+                            <SelectValue placeholder="Select..." />
+                          </>
+                        )}
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          {propertyTypesList?.data.map((item) => (
+                            <SelectItem value={item}>
+                              {capitalizeFirstLetter(item)}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
               </Field>
             </FieldGroup>
           </FieldSet>

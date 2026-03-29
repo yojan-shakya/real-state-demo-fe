@@ -30,6 +30,7 @@ import {
   PropertyListCard,
   PropertyListCardSkeleton,
 } from "./components"
+import { capitalizeFirstLetter } from "@/lib"
 
 function PropertyList() {
   const [isFilterDialogOpen, setIsFilterDialogOpen] = useState<boolean>(false)
@@ -76,6 +77,7 @@ function PropertyList() {
       priceMin: values.minPrice || null,
       suburb: values.suburb || null,
       title: values.title || null,
+      propertyType: values.propertyType || null,
       page: 1,
     })
     setIsFilterDialogOpen(false)
@@ -133,9 +135,9 @@ function PropertyList() {
             <div className="grid grid-cols-4 gap-x-4 gap-y-6">
               {propertyListData?.data.map((item) => (
                 <PropertyListCard
-                  // todo
                   key={item.id}
-                  landSize={30000}
+                  landSize={item.landSize}
+                  propertyType={capitalizeFirstLetter(item.propertyType)}
                   price={item.price}
                   suburb={item.suburbs}
                   title={item.title}
@@ -208,6 +210,7 @@ function PropertyList() {
               minPrice: searchParams.priceMin || undefined,
               suburb: searchParams.suburb || undefined,
               title: searchParams.title || undefined,
+              propertyType: searchParams.propertyType || undefined,
             }}
           />
         </DialogContent>

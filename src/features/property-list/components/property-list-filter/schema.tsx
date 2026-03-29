@@ -19,7 +19,7 @@ export const propertyListFilterSchema = z
       .number("Bathrooms must be number")
       .min(1, "Cannot be less than 1")
       .optional(),
-    // todo property type
+    propertyType: z.string("Property Type must be string").optional(),
     suburb: z.string().optional(),
   })
   .refine(
