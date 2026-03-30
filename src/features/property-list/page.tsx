@@ -2,11 +2,12 @@ import { Funnel } from "lucide-react"
 import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { parseAsInteger, parseAsString, useQueryStates } from "nuqs"
-import emptyPageImageSrc from "@/assets/empty-page-image.svg"
+import emptyPageImage from "@/assets/empty-page-image.svg"
 import type { PropertyListFilterType } from "./components/property-list-filter/schema"
 import { PropertyListFilter } from "./components/property-list-filter/property-list-filter"
 import {
   Button,
+  ButtonSkeleton,
   Dialog,
   DialogContent,
   DialogHeader,
@@ -31,6 +32,7 @@ import {
   PropertyListCardSkeleton,
 } from "./components"
 import { capitalizeFirstLetter } from "@/lib"
+import { VisuallyHidden } from "radix-ui"
 
 function PropertyList() {
   const [isFilterDialogOpen, setIsFilterDialogOpen] = useState<boolean>(false)
@@ -66,6 +68,7 @@ function PropertyList() {
           search: searchParams.title || undefined,
           page: searchParams.page || undefined,
         }),
+      throwOnError: true,
     }
   )
 
@@ -106,19 +109,28 @@ function PropertyList() {
     <>
       <div className="container mx-auto flex flex-col gap-4 py-10">
         <div className="flex flex-row justify-end gap-4">
-          {isFilterSet && (
-            <Button
-              variant={"secondary"}
-              type="button"
-              onClick={onResetFilters}
-            >
-              Reset Filters
-            </Button>
-          )}
+          {isPropertyListLoading ? (
+            <>
+              {isFilterSet && <ButtonSkeleton />}
+              <ButtonSkeleton />
+            </>
+          ) : (
+            <>
+              {isFilterSet && (
+                <Button
+                  variant={"secondary"}
+                  type="button"
+                  onClick={onResetFilters}
+                >
+                  Reset Filters
+                </Button>
+              )}
 
-          <Button onClick={() => setIsFilterDialogOpen(true)}>
-            Apply Filters <Funnel />
-          </Button>
+              <Button onClick={() => setIsFilterDialogOpen(true)}>
+                Apply Filters <Funnel />
+              </Button>
+            </>
+          )}
         </div>
 
         {isPropertyListLoading ? (
@@ -188,9 +200,29 @@ function PropertyList() {
         ) : null}
         {!isPropertyListLoading && propertyListData?.data.length === 0 ? (
           <EmptyPage className="mt-10">
-            <EmptyPageImage className="w-40 md:w-60" src={emptyPageImageSrc} />
+            <EmptyPageImage className="w-40 md:w-60" src={emptyPageImage} />
             <EmptyPageTitle>{"No data found"}</EmptyPageTitle>
-            <EmptyPageDescription>Try a different filter</EmptyPageDescription>
+            <EmptyPageDescription className="flex flex-col gap-4">
+              {isFilterSet ? (
+                <>
+                  <div>Try a different filter or reset filters</div>
+                  <div className="flex gap-2 self-center">
+                    <Button
+                      variant={"secondary"}
+                      type="button"
+                      onClick={onResetFilters}
+                    >
+                      Reset Filters
+                    </Button>
+                    <Button onClick={() => setIsFilterDialogOpen(true)}>
+                      Apply Filters <Funnel />
+                    </Button>
+                  </div>
+                </>
+              ) : (
+                <div>Please contact administrator</div>
+              )}
+            </EmptyPageDescription>
           </EmptyPage>
         ) : null}
       </div>
@@ -221,6 +253,7 @@ function PropertyList() {
         onOpenChange={() => setSelectedPropertyId(null)}
       >
         <DialogContent className="sm:max-w-2xl">
+          <DialogTitle hidden></DialogTitle>
           <PropertyDetail id={selectedPropertyId} />
         </DialogContent>
       </Dialog>

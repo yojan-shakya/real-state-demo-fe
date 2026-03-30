@@ -1,8 +1,18 @@
-import { Badge, type BadgeVariants } from "@/features/core/components"
+import {
+  Badge,
+  Button,
+  EmptyPage,
+  EmptyPageDescription,
+  EmptyPageImage,
+  EmptyPageTitle,
+  type BadgeVariants,
+} from "@/features/core/components"
 import { useQuery } from "@tanstack/react-query"
 import type { ReactNode } from "react"
 import { PropertyDetailSkeleton } from "./property-detail-skeleton"
 import { PropertyApi, type AdminMetadata } from "../../api"
+import somethingWentWrongSvg from "@/assets/something-went-wrong.svg"
+import { RefreshCcw } from "lucide-react"
 
 interface Field<D = string | number> {
   label: string
@@ -14,7 +24,24 @@ interface Props {
 }
 
 export const PropertyDetail = ({ id }: Props) => {
-  const { data: propertyDetail, isLoading: isDetailLoading } = useQuery({
+  const getVariantByStatus = (
+    status: AdminMetadata["internalStatus"]
+  ): BadgeVariants["variant"] => {
+    if (status === "approved") {
+      return "success"
+    }
+    if (status === "fraud_suspected" || status === "rejected") {
+      return "destructive"
+    }
+    return "secondary"
+  }
+
+  const {
+    data: propertyDetail,
+    isFetching: isPropertyDetailLoading,
+    isError: isPropertyDetailError,
+    refetch: refetchPropertyDetail,
+  } = useQuery({
     queryKey: ["property-detail", id],
     queryFn: () => PropertyApi.getPropertyDetail(id!),
     enabled: id !== null,
@@ -27,9 +54,9 @@ export const PropertyDetail = ({ id }: Props) => {
       ]
 
       const agentInfo: Field[] = [
-        { label: "Name", value: data.agent.name },
-        { label: "Email", value: data.agent.email },
-        { label: "Phone No.", value: data.agent.phone },
+        { label: "Name", value: data.agent?.name },
+        { label: "Email", value: data.agent?.email },
+        { label: "Phone No.", value: data.agent?.phone },
       ]
 
       const adminInfo: Field<string | ReactNode>[] | null = data.adminMetadata
@@ -76,59 +103,68 @@ export const PropertyDetail = ({ id }: Props) => {
     })
   }
 
-  const getVariantByStatus = (
-    status: AdminMetadata["internalStatus"]
-  ): BadgeVariants["variant"] => {
-    if (status === "approved") {
-      return "success"
-    }
-    if (status === "fraud_suspected" || status === "rejected") {
-      return "destructive"
-    }
-    return "secondary"
-  }
-
-  if (isDetailLoading) {
-    return <PropertyDetailSkeleton />
-  }
-
   return (
     <div className="no-scrollbar h-[80vh] w-full overflow-y-auto p-1">
-      <h2 className="mb-2 border-b pb-1 text-lg font-semibold">
-        {propertyDetail?.title}
-      </h2>
-      <div className="space-y-4">
-        <p>{propertyDetail?.description}</p>
-        <div className="max-w-md space-y-4">
-          <p className="mt-auto flex flex-row gap-2 font-heading text-base font-medium">
-            {Number(propertyDetail?.price).toLocaleString("en-IN", {
-              style: "currency",
-              currency: "NPR",
-              maximumFractionDigits: 0,
-            })}
-          </p>
-          <div>
-            <h2 className="mb-2 border-b pb-1 text-lg font-semibold">
-              Property Info
-            </h2>
-            {renderFields(propertyDetail?.propertyInfo || [])}
-          </div>
-          <div>
-            <h2 className="mb-2 border-b pb-1 text-lg font-semibold">
-              Agent Info
-            </h2>
-            {renderFields(propertyDetail?.agentInfo || [])}
-          </div>
-          {propertyDetail?.adminInfo ? (
+      {isPropertyDetailLoading ? (
+        <PropertyDetailSkeleton key="skeleton" />
+      ) : null}
+      {isPropertyDetailError && !isPropertyDetailLoading ? (
+        <EmptyPage className="h-[80vh]" key="empty-page">
+          <EmptyPageImage
+            className="w-40 md:w-60"
+            src={somethingWentWrongSvg}
+          />
+          <EmptyPageTitle>{"No data found"}</EmptyPageTitle>
+          <EmptyPageDescription className="flex flex-col items-center gap-4">
             <div>
-              <h2 className="mb-2 border-b pb-1 text-lg font-semibold">
-                Admin Info
-              </h2>
-              {renderFields(propertyDetail?.adminInfo || [])}
+              Something went wrong. If the error persists, please contact
+              administrator
             </div>
-          ) : null}
-        </div>
-      </div>
+            <Button onClick={() => refetchPropertyDetail()}>
+              Retry <RefreshCcw />
+            </Button>
+          </EmptyPageDescription>
+        </EmptyPage>
+      ) : null}
+      {!isPropertyDetailError && !isPropertyDetailLoading ? (
+        <>
+          <h2 className="mb-2 border-b pb-1 text-lg font-semibold">
+            {propertyDetail?.title}
+          </h2>
+          <div className="space-y-4">
+            <p>{propertyDetail?.description}</p>
+            <div className="max-w-md space-y-4">
+              <p className="mt-auto flex flex-row gap-2 font-heading text-base font-medium">
+                {Number(propertyDetail?.price).toLocaleString("en-IN", {
+                  style: "currency",
+                  currency: "NPR",
+                  maximumFractionDigits: 0,
+                })}
+              </p>
+              <div>
+                <h2 className="mb-2 border-b pb-1 text-lg font-semibold">
+                  Property Info
+                </h2>
+                {renderFields(propertyDetail?.propertyInfo || [])}
+              </div>
+              <div>
+                <h2 className="mb-2 border-b pb-1 text-lg font-semibold">
+                  Agent Info
+                </h2>
+                {renderFields(propertyDetail?.agentInfo || [])}
+              </div>
+              {propertyDetail?.adminInfo ? (
+                <div>
+                  <h2 className="mb-2 border-b pb-1 text-lg font-semibold">
+                    Admin Info
+                  </h2>
+                  {renderFields(propertyDetail?.adminInfo || [])}
+                </div>
+              ) : null}
+            </div>
+          </div>
+        </>
+      ) : null}
     </div>
   )
 }

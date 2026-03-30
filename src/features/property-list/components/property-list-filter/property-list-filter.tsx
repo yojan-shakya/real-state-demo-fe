@@ -20,6 +20,7 @@ import { Loader2 } from "lucide-react"
 import { useQuery } from "@tanstack/react-query"
 import { PropertyApi } from "../../api"
 import { capitalizeFirstLetter } from "@/lib"
+import { toast } from "sonner"
 
 interface PropertyListFilterProps {
   onSubmit: (_: PropertyListFilterType) => void
@@ -47,6 +48,9 @@ export const PropertyListFilter = ({
     useQuery({
       queryKey: ["property-type"],
       queryFn: PropertyApi.getPropertyTypes,
+      meta: {
+        errorMessage: "Failed to load property types.",
+      },
     })
 
   return (
