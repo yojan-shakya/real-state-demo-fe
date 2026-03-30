@@ -69,6 +69,7 @@ function PropertyList() {
           propertyType: searchParams.propertyType || undefined,
           search: searchParams.title || undefined,
           page: searchParams.page || undefined,
+          suburb: searchParams.suburb || undefined,
         }),
       throwOnError: true,
     }

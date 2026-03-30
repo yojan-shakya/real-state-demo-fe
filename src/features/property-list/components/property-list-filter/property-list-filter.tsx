@@ -157,7 +157,7 @@ export const PropertyListFilter = ({
                       <SelectContent>
                         <SelectGroup>
                           {propertyTypesList?.data.map((item) => (
-                            <SelectItem value={item}>
+                            <SelectItem value={item} key={item}>
                               {capitalizeFirstLetter(item)}
                             </SelectItem>
                           ))}

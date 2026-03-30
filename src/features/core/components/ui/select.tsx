@@ -54,15 +54,17 @@ function SelectTrigger({
       {children}
       <div className="flex">
         {value ? (
-          <button
-            type="button"
-            onClick={(e) => {
+          <div
+            role="button"
+            className="cursor-pointer"
+            onPointerDown={(e) => {
               e.stopPropagation()
+              e.preventDefault()
               onCancel?.()
             }}
           >
             <X></X>
-          </button>
+          </div>
         ) : null}
         <SelectPrimitive.Icon asChild>
           <ChevronDownIcon className="pointer-events-none size-4 text-muted-foreground" />
