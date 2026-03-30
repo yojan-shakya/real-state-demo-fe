@@ -7,3 +7,9 @@ This is an assignment for techkraft
 1. Copy .env.example to an .env file
 2. `npm install`
 3. `npm run dev`
+
+# Notes
+
+1. Shadcn is used for ui
+2. For admin feature, admin info is populated in Propery Details modal
+<img width="1617" height="874" alt="image" src="https://github.com/user-attachments/assets/ad2225bf-38e9-4b22-a1c8-a6b1a5e47c45" />
