@@ -1,3 +1,4 @@
+import { AdminService } from "@/features/core"
 import Axios, { type InternalAxiosRequestConfig } from "axios"
 
 export const api = Axios.create({
@@ -8,7 +9,7 @@ export const api = Axios.create({
 })
 
 api.interceptors.request.use(async (request: InternalAxiosRequestConfig) => {
-  if (request.headers && localStorage.getItem("role") === "admin") {
+  if (request.headers && AdminService.getRole() === "admin") {
     request.headers["x-admin"] = "true"
   }
 

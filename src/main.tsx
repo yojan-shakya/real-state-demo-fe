@@ -9,7 +9,7 @@ import {
 } from "@tanstack/react-query"
 import { NuqsAdapter } from "nuqs/adapters/react"
 import { ThemeProvider } from "@/features/core/providers/theme-provider.tsx"
-import { ErrorBoundary } from "./features/core/index.ts"
+import { AuthProvider, ErrorBoundary } from "./features/core/index.ts"
 import { toast } from "sonner"
 import { Toaster } from "./features/core/components"
 
@@ -32,14 +32,16 @@ const queryClient = new QueryClient({
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ErrorBoundary>
-      <NuqsAdapter>
-        <ThemeProvider>
-          <QueryClientProvider client={queryClient}>
-            <App />
-          </QueryClientProvider>
-        </ThemeProvider>
-      </NuqsAdapter>
-      <Toaster />
+      <AuthProvider>
+        <NuqsAdapter>
+          <ThemeProvider>
+            <QueryClientProvider client={queryClient}>
+              <App />
+            </QueryClientProvider>
+          </ThemeProvider>
+        </NuqsAdapter>
+        <Toaster />
+      </AuthProvider>
     </ErrorBoundary>
   </StrictMode>
 )

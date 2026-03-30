@@ -1,5 +1,5 @@
 import { Funnel } from "lucide-react"
-import { useState } from "react"
+import { useContext, useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { parseAsInteger, parseAsString, useQueryStates } from "nuqs"
 import emptyPageImage from "@/assets/empty-page-image.svg"
@@ -24,7 +24,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/features/core/components"
-import { getPageNumbers } from "../core"
+import { AuthContext, getPageNumbers, Label, Skeleton } from "../core"
 import { PropertyApi } from "./api"
 import {
   PropertyDetail,
@@ -32,13 +32,15 @@ import {
   PropertyListCardSkeleton,
 } from "./components"
 import { capitalizeFirstLetter } from "@/lib"
-import { VisuallyHidden } from "radix-ui"
+import { Switch } from "../core/components/ui/switch"
 
 function PropertyList() {
   const [isFilterDialogOpen, setIsFilterDialogOpen] = useState<boolean>(false)
   const [selectedPropertyId, setSelectedPropertyId] = useState<number | null>(
     null
   )
+
+  const { toggleRole, role } = useContext(AuthContext)
 
   const [searchParams, setSearchParams] = useQueryStates({
     baths: parseAsInteger,
@@ -108,29 +110,44 @@ function PropertyList() {
   return (
     <>
       <div className="container mx-auto flex flex-col gap-4 py-10">
-        <div className="flex flex-row justify-end gap-4">
+        <div className="flex flex-1 flex-row items-center justify-between gap-4">
           {isPropertyListLoading ? (
-            <>
-              {isFilterSet && <ButtonSkeleton />}
-              <ButtonSkeleton />
-            </>
+            <Skeleton className="h-8 w-32" />
           ) : (
-            <>
-              {isFilterSet && (
-                <Button
-                  variant={"secondary"}
-                  type="button"
-                  onClick={onResetFilters}
-                >
-                  Reset Filters
-                </Button>
-              )}
-
-              <Button onClick={() => setIsFilterDialogOpen(true)}>
-                Apply Filters <Funnel />
-              </Button>
-            </>
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="admin-mode"
+                checked={role === "admin"}
+                onClick={() => toggleRole()}
+              />
+              <Label htmlFor="admin-mode">Admin Mode</Label>
+            </div>
           )}
+
+          <div className="flex gap-2">
+            {isPropertyListLoading ? (
+              <>
+                {isFilterSet && <ButtonSkeleton />}
+                <ButtonSkeleton />
+              </>
+            ) : (
+              <>
+                {isFilterSet && (
+                  <Button
+                    variant={"secondary"}
+                    type="button"
+                    onClick={onResetFilters}
+                  >
+                    Reset Filters
+                  </Button>
+                )}
+
+                <Button onClick={() => setIsFilterDialogOpen(true)}>
+                  Apply Filters <Funnel />
+                </Button>
+              </>
+            )}
+          </div>
         </div>
 
         {isPropertyListLoading ? (

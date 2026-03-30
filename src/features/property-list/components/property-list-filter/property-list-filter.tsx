@@ -20,7 +20,6 @@ import { Loader2 } from "lucide-react"
 import { useQuery } from "@tanstack/react-query"
 import { PropertyApi } from "../../api"
 import { capitalizeFirstLetter } from "@/lib"
-import { toast } from "sonner"
 
 interface PropertyListFilterProps {
   onSubmit: (_: PropertyListFilterType) => void

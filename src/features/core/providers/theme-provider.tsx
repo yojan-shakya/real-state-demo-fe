@@ -1,4 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
+// Note: this is from shadcn
+
 import * as React from "react"
 
 type Theme = "dark" | "light" | "system"
